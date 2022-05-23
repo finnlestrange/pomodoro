@@ -2,6 +2,7 @@
 
 **Tutorials & Resources**
 * Using web workers for timers: [here](https://hackwild.com/article/web-worker-timers/)
+* Using web workers with React: [here](https://github.com/facebook/create-react-app/issues/1277)
 * Ben Awad React hooks tutorials: [here](https://www.youtube.com/playlist?list=PLN3n1USn4xlmyw3ebYuZmGp60mcENitdM)
 
 **Ideas**
