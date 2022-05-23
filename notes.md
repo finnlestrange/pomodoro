@@ -1,0 +1,39 @@
+## 📒 Notes for research and development
+
+**Tutorials & Resources**
+* Using web workers for timers: [here](https://hackwild.com/article/web-worker-timers/)
+* Ben Awad React hooks tutorials: [here](https://www.youtube.com/playlist?list=PLN3n1USn4xlmyw3ebYuZmGp60mcENitdM)
+
+**Ideas**
+* Have settings menu in a popup modal
+* If timer running display current time remaining in the `document.title` property
+* Use sliders (or just text fields / plus minus buttons) in settings menu to adjust times
+* Use sliders for volume of sounds & checkboxes for enabling / disabling sounds
+* Learn how to use localstorage to store user preferences, (and / or google firebase auth for storing prefs. and stats (time worked etc.))
+* Todo functionality (clicking on todos to remove (adding animations on hover etc.))
+* Light and dark theme switcher
+* Ability to set custom backgrounds with different levels of opacity
+
+
+### Structure
+
+Shared context, makes use of a reducer to update timer values using a worker thread
+
+Example state structure:
+* workTime: `int` stores the time in minutes for the work session 
+* breakTime: `int` stores the time in minutes for the break session
+* sessionStart: stores a timestamp using `new Date().getTime()`
+* sessionEnd: stores a timestamp which is the `sessionStart + work/break time`
+* currentTime: stores the current progress of the timer in seconds
+* running: `boolean` timer is running or not
+* endSound: `boolean` if the end sound should be played or not
+* endVolume: `float (0 -> 1)` stores the volume of the bell sound
+* clickSound: `boolean` if the click sound should be played or not when pressing buttons
+* clickVolume: `float (0 -> 1)` stores the volume of the click sound 
+ 
+### TODO
+- [  ] - finish ben awad series on react hooks
+- [  ] - setup state and context 
+- [  ] - web worker testing, making sure it runs properly 
+- [  ] - setup components and state management within components
+- [  ] - add UI elements to interact with state
