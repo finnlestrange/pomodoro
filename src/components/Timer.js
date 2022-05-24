@@ -1,85 +1,90 @@
-// Test Timer functionality with a web worker
-
-import React, {useEffect, useRef, useState} from "react";
+import React, {useState} from "react";
 
 
-// MUI Components
-import {Button} from "@mui/material";
-import {CircularProgressbar} from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
+// UI Imports
+import {Button, TextField} from "@mui/material";
 
-// Sound
-import bell from '../audio/bell.mp3';
-import buttonPress from '../audio/button-press.mp3'; // https://github.com/tplai/kbsim/blob/master/src/assets/audio/turquoise/press/GENERIC_R0.mp3
 
-// Web worker imports
-import worker_script from "../worker/timer.worker";
+// Worker Imports
+import workerScript from "../worker/timer.worker";
 
-// this needs to be outside the main component function otherwise a new worker is made each time the component re-renders
-let worker = new Worker(worker_script);
+const timerWorker = new Worker(workerScript);
+
 
 const Timer = () => {
 
-    const [workTime, setWorkTime] = useState(1);
-    const [breakTime, setBreakTime] = useState(25);
-    const [start, setStart] = useState(null);
-    const [end, setEnd] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(0);
-    const [running, setRunning] = useState(false);
+    const [workTime, setWorkTime] = useState(25);
+    const [timeLeft, setTimeLeft] = useState(workTime * 60 * 1000); // 25 minutes in ms
 
-    // State for formatting and display
-    const [minutes, setMinutes] = useState(0);
+    // Time conversion functions
+    const [minutes, setMinutes] = useState(25);
     const [seconds, setSeconds] = useState(0);
 
     const min = minutes <= 9 ? `0${minutes.toFixed(0)}` : minutes.toFixed(0);
+
     const sec = seconds <= 9 ? `0${seconds.toFixed(0)}` : seconds.toFixed(0);
 
-
-    // Worker functions
-    worker.onmessage = (e) => {
-        console.log(e.data);
-        setTimeLeft(e.data);
-        if (e.data < 0) {
-            setSeconds(0);
-            setMinutes(0);
-            document.title = "[Work] Completed";
-            return;
-        }
-
-        // https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript
-        let a = Math.floor(e.data / 60000);
-        let b = ((e.data % 60000) / 1000);
-        setMinutes(a);
-        setSeconds(b);
-
-        a = a <= 9 ? `0${a.toFixed(0)}` : a.toFixed(0);
-        b = b <= 9 ? `0${b.toFixed(0)}` : b.toFixed(0);
-
-        // Sets the webpage title to the current time left on the clock
-        document.title = "[Work] " + a + ":" + b +" left";
+    const minutesToMs = (m) => {
+        return m * 60000;
     }
 
+    const getMinutes = (millis) => {
+        return Math.floor(millis / 60000);
+    }
+
+    const getSeconds = (millis) => {
+        return ((millis % 60000) / 1000);
+    }
+
+    // Worker functions
+    timerWorker.onmessage = (e) => {
+        let newTime = parseInt(e.data.split("-")[1]);
+        let m = getMinutes(newTime);
+        let s = getSeconds(newTime);
+        setMinutes(m);
+        setSeconds(s);
+        // console.log(e.data);
+        if (newTime < 0) {
+            setTimeLeft(0); // make sure value is round 0 for minutes and seconds
+            document.title = "timer done";
+            return;
+        } else {
+            setTimeLeft(newTime);
+            document.title = m + " : " + s.toFixed(0);
+        }
+    };
+
+
+    // Timer control functions
     const startTimer = () => {
-        const now = new Date().getTime();
-        const e = now + (workTime * 60000);
-        setEnd(e);
-        worker.postMessage(e);
+        // this is reset each time the timer is started and is based off of how long there is left on the timer
+        const endTime = new Date().getTime() + (timeLeft);
+
+        const message = "start-" + endTime;
+        timerWorker.postMessage(message);
     }
 
     const stopTimer = () => {
+        timerWorker.postMessage("stop");
     }
-    
+
     const resetTimer = () => {
-        
+        stopTimer();
+        setTimeLeft(minutesToMs(workTime));
+        setMinutes(workTime);
+        setSeconds(0);
     }
 
     return (
         <>
-            <p>time left: {min} : {sec}</p>
+            <p>{min} : {sec}</p>
             <Button variant={"outlined"} onClick={startTimer}>Start Timer</Button>
             <Button variant={"outlined"} onClick={stopTimer}>Stop Timer</Button>
+            <Button variant={"outlined"} onClick={resetTimer}>Reset Timer</Button>
+            <TextField onChange={(e) => setWorkTime(parseInt(e.target.value))} variant={"outlined"}></TextField>
         </>
     );
-}
+
+};
 
 export default Timer;

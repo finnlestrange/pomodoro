@@ -4,6 +4,8 @@
 * Using web workers for timers: [here](https://hackwild.com/article/web-worker-timers/)
 * Using web workers with React: [here](https://github.com/facebook/create-react-app/issues/1277)
 * Ben Awad React hooks tutorials: [here](https://www.youtube.com/playlist?list=PLN3n1USn4xlmyw3ebYuZmGp60mcENitdM)
+* Minutes and seconds from ms in JS: [here](https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript)
+* Clearinterval in worker (React): [here](https://stackoverflow.com/questions/66715904/clearinterval-in-web-worker-not-stopping-timer)
 
 **Ideas**
 * Have settings menu in a popup modal
@@ -14,6 +16,17 @@
 * Todo functionality (clicking on todos to remove (adding animations on hover etc.))
 * Light and dark theme switcher
 * Ability to set custom backgrounds with different levels of opacity
+
+**New approach to timer worker**
+
+Inspo / RE from pomofocus code: [here](https://pomofocus.io/js/timeWorker.js)
+
+- In main timer code 
+  - tick function that calculates the time and decrements when a message from the worker is received
+  - postMessage sends a string that contains the key word(start / stop), followed by seconds to count 
+- In worker code
+  - if message received is start then setInterval
+  - if message recieved is stop then clearInterval
 
 
 ### Structure
