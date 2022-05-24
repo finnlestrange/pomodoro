@@ -3,12 +3,21 @@
 const workerCode = () => {
     // eslint-disable-next-line no-restricted-globals
     self.onmessage = (message) => {
-        let end = message.data[1];
-        setInterval(() => {
+
+
+        let end = message.data;
+        let interval = setInterval(() => {
             let now = new Date().getTime();
             let diff = end - now;
-            postMessage(diff.toFixed(0));
+
+            if (diff > -1000) {
+                postMessage(diff.toFixed(0));
+            } else {
+                clearInterval(interval);
+            }
+
         }, 1000);
+
     }
 };
 
