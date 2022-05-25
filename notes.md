@@ -6,6 +6,7 @@
 * Ben Awad React hooks tutorials: [here](https://www.youtube.com/playlist?list=PLN3n1USn4xlmyw3ebYuZmGp60mcENitdM)
 * Minutes and seconds from ms in JS: [here](https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript)
 * Clearinterval in worker (React): [here](https://stackoverflow.com/questions/66715904/clearinterval-in-web-worker-not-stopping-timer)
+* Package that changes setInterval to use workers by default (backup option): [here](https://github.com/chrisguttandin/worker-timers)
 
 **Ideas**
 * Have settings menu in a popup modal
