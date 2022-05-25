@@ -50,5 +50,4 @@ Example state structure:
 - [  ] - finish ben awad series on react hooks
 - [  ] - setup state and context 
 - [  ] - web worker testing, making sure it runs properly 
-- [  ] - setup components and state management within components
-- [  ] - add UI elements to interact with state
+- [  ] - setup different modes and the ability to change between them
