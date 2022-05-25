@@ -6,18 +6,19 @@ const worker = () => {
     // calculates the time difference between the end of the timer and now
     const calcTimeDiff = (time) => {
         let now = new Date().getTime();
+        // console.log("from worker: " + (time - now));
         return time - now;
     }
 
     onmessage = (e) => {
         const message = e.data;
-        const command = message.split("-")[0];
-        const time = parseInt(message.split("-")[1]); // end time for the timer
+        const command = message.split(":")[0];
+        const time = parseInt(message.split(":")[1]); // end time for the timer
 
         if (command === "start") {
             startTime = new Date().getTime();
             timerInterval = setInterval(() => {
-                postMessage("timeLeft-" + calcTimeDiff(time));
+                postMessage("timeLeft:" + calcTimeDiff(time));
             }, 1000)
         }
 

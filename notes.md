@@ -7,6 +7,8 @@
 * Minutes and seconds from ms in JS: [here](https://stackoverflow.com/questions/21294302/converting-milliseconds-to-minutes-and-seconds-with-javascript)
 * Clearinterval in worker (React): [here](https://stackoverflow.com/questions/66715904/clearinterval-in-web-worker-not-stopping-timer)
 * Package that changes setInterval to use workers by default (backup option): [here](https://github.com/chrisguttandin/worker-timers)
+* Emoji Favicons: [here](https://favicon.io/emoji-favicons/)
+* Dynamic Favicons: [here](https://reactgo.com/react-change-favicon-dynamically/)
 
 **Ideas**
 * Have settings menu in a popup modal
@@ -19,8 +21,6 @@
 * Ability to set custom backgrounds with different levels of opacity
 
 **New approach to timer worker**
-
-Inspo / RE from pomofocus code: [here](https://pomofocus.io/js/timeWorker.js)
 
 - In main timer code 
   - tick function that calculates the time and decrements when a message from the worker is received
