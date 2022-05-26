@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 
-// UI Imports
+// UI Imports -> https://mui.com/material-ui/
 import {
     Button,
     Stack,
@@ -15,6 +15,7 @@ import {
     FormControlLabel, Checkbox
 } from "@mui/material";
 
+// Icon finder -> https://mui.com/material-ui/material-icons/
 import {
     Coffee,
     CoffeeMaker,
@@ -35,6 +36,7 @@ import clickSound from "../audio/button-press.mp3";
 
 // Worker Imports
 import workerScript from "../worker/timer.worker";
+import Credits from "./Credits";
 
 const timerWorker = new Worker(workerScript);
 
@@ -70,9 +72,10 @@ const modalStyle = {
     p: 4,
 };
 
+// Main Timer code
 const Timer = () => {
 
-    // Colors
+    // Colors -> used for the circular timer component
     const main = "#9b9a97";
     const red = "#e03e3e";
 
@@ -81,19 +84,20 @@ const Timer = () => {
     const [count, setCount] = useState(0); // used to determine the next mode based on the current number of completed pomodoro
     const [totalSessions, setTotalSessions] = useState(1); // number of current pomodoro session
 
-    const defaultTimes = [25, 5, 15];
+    const defaultTimes = [25, 5, 15]; // Used to reset to default settings
 
+    // Stores the times for each of the modes
     const [focusTime, setFocusTime] = useState(25);
     const [shortBreakTime, setShortBreakTime] = useState(5);
     const [longBreakTime, setLongBreakTime] = useState(10);
 
-    const [running, setRunning] = useState(false); // if the timer is running or not
+    const [running, setRunning] = useState(false); // boolean -> if the timer is running or not
 
-    // Boolean to show settings modal
-    const [showSettings, setShowSettings] = useState(false);
-    const [focusTimeSettings, setFocusTimeSettings] = useState(focusTime);
-    const [shortTimeSettings, setShortTimeSettings] = useState(shortBreakTime);
-    const [longTimeSettings, setLongTimeSettings] = useState(longBreakTime);
+    // State for settings menu
+    const [showSettings, setShowSettings] = useState(false); // boolean -> whether the settings modal is displayed
+    const [focusTimeSettings, setFocusTimeSettings] = useState(focusTime); // value of the slider in the settings menu
+    const [shortTimeSettings, setShortTimeSettings] = useState(shortBreakTime); // value of the slider in the settings menu
+    const [longTimeSettings, setLongTimeSettings] = useState(longBreakTime); // value of the slider in the settings menu
 
     // Mode Helper Function(s) //
     // returns the time (in minutes) based on what mode the timer is in
@@ -111,7 +115,7 @@ const Timer = () => {
         }
     }
 
-    // Calculates the timers next mode
+    // Calculates the timers next mode, based on how many focus sessions have been completed and what mode the timer was in before
     const nextMode = () => {
         if (mode === "focus" && count < 3) {
             setCount(prevState => prevState + 1);
@@ -127,7 +131,7 @@ const Timer = () => {
         }
     }
 
-    // Returns string of current mode
+    // Returns string of current mode, used for JSX elements
     const modeString = () => {
         if (mode === "focus") return "Focus";
         if (mode === "shortBreak") return "Break";
@@ -142,17 +146,21 @@ const Timer = () => {
     const [minutes, setMinutes] = useState(modeTime(mode));
     const [seconds, setSeconds] = useState(0);
 
+    // These are used to format the minutes & seconds state to add 0's padding
     const min = minutes <= 9 ? `0${minutes.toFixed(0)}` : minutes.toFixed(0);
     const sec = seconds <= 9 ? `0${seconds.toFixed(0)}` : seconds.toFixed(0);
 
+    // Convert minutes into millis
     const minutesToMs = (m) => {
         return m * 60000;
     }
 
+    // Returns the minutes part of a millis value
     const getMinutes = (millis) => {
         return Math.floor(millis / 60000);
     }
 
+    // Returns the seconds part of a millis value
     const getSeconds = (millis) => {
         return ((millis % 60000) / 1000);
     }
@@ -163,6 +171,8 @@ const Timer = () => {
     const [bellVolume, setBellVolume] = useState(0.2);
     const [clickVolume, setClickVolume] = useState(0.3);
 
+
+    // Plays the bell sound
     const playBell = () => {
         if (bell) {
             const bellAudio = new Audio(bellSound);
@@ -171,6 +181,7 @@ const Timer = () => {
         }
     };
 
+    // Plays the click sound
     const playClick = () => {
         if (click) {
             const clickAudio = new Audio(clickSound);
@@ -236,11 +247,13 @@ const Timer = () => {
 
     }
 
+    // Pauses the setInterval function in the web worker
     const stopTimer = () => {
         setRunning(false);
         timerWorker.postMessage("stop");
     }
 
+    // Resets the timer to the default values for the current mode -> "m"
     const resetTimer = (m) => {
         stopTimer();
         setMode(m);
@@ -251,6 +264,7 @@ const Timer = () => {
     }
 
 
+    // Changes the mode to the mode -> "m"
     const changeMode = (m) => {
         resetTimer(m);
         if (m === "focus") {
@@ -259,7 +273,6 @@ const Timer = () => {
             setMinutes(focusTime);
             setSeconds(0);
             document.title = "Pomodoro"
-            // document.title = "[Focus] " + focusTime + ":00"
         }
         if (m === "shortBreak") {
             setMode("shortBreak");
@@ -267,7 +280,6 @@ const Timer = () => {
             setMinutes(shortBreakTime);
             setSeconds(0);
             document.title = "Pomodoro"
-            // document.title = "[Break] " + shortBreakTime + ":00"
         }
         if (m === "longBreak") {
             setMode("longBreak");
@@ -275,12 +287,13 @@ const Timer = () => {
             setMinutes(longBreakTime);
             setSeconds(0);
             document.title = "Pomodoro"
-            // document.title = "[Break] " + longBreakTime + ":00"
         }
     }
 
 
-    // Settings Menu
+    // Settings Menu Functions //
+
+    // Updates all settings values, based on if they have been changed or not
     const handleSettingsSubmit = (e) => {
         e.preventDefault();
         if (focusTimeSettings !== focusTime) {
@@ -291,6 +304,7 @@ const Timer = () => {
             setLongBreakTime(longTimeSettings);
         }
 
+        // Ensures correct and updated time for current mode when settings are updated
         if (mode === "focus") {
             setMinutes(focusTimeSettings);
             setSeconds(0);
@@ -310,6 +324,8 @@ const Timer = () => {
         setShowSettings(false);
     }
 
+
+    // Resets all settings to the default values
     const handleReset = () => {
         // Set main state
         setFocusTime(defaultTimes[0]);
@@ -403,9 +419,17 @@ const Timer = () => {
                     </Stack>
                     <Stack justifyContent={"center"} paddingTop={"20px"} spacing={1} direction={"row"}>
                         <Button disabled={running} variant={"outlined"}
-                                onClick={() => setShowSettings(true)}><Settings/> Settings</Button>
+                                onClick={() => setShowSettings(true)} startIcon={<Settings/>}>Settings</Button>
                     </Stack>
                 </div>
+
+
+                {/* Credits */}
+                <br />
+                <Box sx={{width:"100%", alignContent:"center"}} >
+                    <Credits/>
+                </Box>
+
 
                 {/* Code for the pop-up settings menu */}
                 <Modal open={showSettings} onClose={() => {
@@ -515,7 +539,10 @@ const Timer = () => {
                                         <Slider min={0} max={1} step={0.1} valueLabelFormat={(x) => x * 100 + "%"}
                                                 value={bellVolume} valueLabelDisplay={"auto"}
                                                 aria-label={"Default"}
-                                                onChange={(e) => {setBellVolume(e.target.value); playBell();}}/>
+                                                onChange={(e) => {
+                                                    setBellVolume(e.target.value);
+                                                    playBell();
+                                                }}/>
                                     </Grid>
                                 </Grid>
 
@@ -530,7 +557,10 @@ const Timer = () => {
                                         <Slider min={0} max={1} step={0.1} valueLabelFormat={(x) => x * 100 + "%"}
                                                 value={clickVolume} valueLabelDisplay={"auto"}
                                                 aria-label={"Default"}
-                                                onChange={(e) => {setClickVolume(e.target.value); playClick();}}/>
+                                                onChange={(e) => {
+                                                    setClickVolume(e.target.value);
+                                                    playClick();
+                                                }}/>
                                     </Grid>
                                 </Grid>
 
@@ -538,12 +568,15 @@ const Timer = () => {
                             <br/>
                             <Stack spacing={2} direction={"row"}>
                                 <Button color={"success"} variant={"contained"} type={"submit"}>Save Settings</Button>
-                                <Button color={"warning"} variant={"contained"} onClick={handleReset}>Reset Settings</Button>
-                                <Button color={"error"} variant={"contained"} onClick={() => setShowSettings(false)}>Exit</Button>
+                                <Button color={"warning"} variant={"contained"} onClick={handleReset}>Reset
+                                    Settings</Button>
+                                <Button color={"error"} variant={"contained"}
+                                        onClick={() => setShowSettings(false)}>Exit</Button>
                             </Stack>
                         </form>
                     </Box>
                 </Modal>
+
 
             </ThemeProvider>
         </>
