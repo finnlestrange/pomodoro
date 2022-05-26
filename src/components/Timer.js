@@ -419,7 +419,7 @@ const Timer = () => {
                     </Stack>
                     <Stack justifyContent={"center"} paddingTop={"20px"} spacing={1} direction={"row"}>
                         <Button disabled={running} variant={"outlined"}
-                                onClick={() => setShowSettings(true)} startIcon={<Settings/>}>Settings</Button>
+                                onClick={() => {setShowSettings(true); playClick()}} startIcon={<Settings/>}>Settings</Button>
                     </Stack>
                 </div>
 
@@ -567,11 +567,11 @@ const Timer = () => {
                             </Box>
                             <br/>
                             <Stack spacing={2} direction={"row"}>
-                                <Button color={"success"} variant={"contained"} type={"submit"}>Save Settings</Button>
-                                <Button color={"warning"} variant={"contained"} onClick={handleReset}>Reset
+                                <Button color={"success"} variant={"contained"} type={"submit"} onClick={playClick}>Save Settings</Button>
+                                <Button color={"warning"} variant={"contained"} onClick={() => {handleReset(); playClick()}}>Reset
                                     Settings</Button>
                                 <Button color={"error"} variant={"contained"}
-                                        onClick={() => setShowSettings(false)}>Exit</Button>
+                                        onClick={() => {setShowSettings(false); playClick()}}>Exit</Button>
                             </Stack>
                         </form>
                     </Box>
