@@ -1,10 +1,9 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 // UI Imports -> https://mui.com/material-ui/
 import {
     Button,
     Stack,
-    createTheme,
     ThemeProvider,
     Modal,
     Box,
@@ -15,6 +14,8 @@ import {
     FormControlLabel, Checkbox
 } from "@mui/material";
 
+import {theme, modalStyle, red, grey} from "../styles/muiStyle";
+
 // Icon finder -> https://mui.com/material-ui/material-icons/
 import {
     Coffee,
@@ -22,7 +23,7 @@ import {
     NotificationsActive,
     Settings,
     SurroundSound,
-    Timelapse
+    Timelapse, VolumeUp
 } from "@mui/icons-material";
 
 import {CircularProgressbar} from "react-circular-progressbar";
@@ -33,51 +34,15 @@ import '../styles/Timer.css';
 import bellSound from "../audio/bell.mp3";
 import clickSound from "../audio/button-press.mp3";
 
-
 // Worker Imports
 import workerScript from "../worker/timer.worker";
 import Credits from "./Credits";
 
 const timerWorker = new Worker(workerScript);
 
-// MUI Theme & Styles
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: "#0b6e99",
-        },
-        secondary: {
-            main: "#d9730d",
-        },
-        error: {
-            main: "#e03e3e",
-        },
-        success: {
-            main: "#0f7b6c",
-        }
-    }
-});
-
-const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    background: '#282c34',
-    color: 'white',
-    border: '2px solid #000',
-    borderRadius: "15px",
-    boxShadow: 24,
-    p: 4,
-};
 
 // Main Timer code
 const Timer = () => {
-
-    // Colors -> used for the circular timer component
-    const main = "#9b9a97";
-    const red = "#e03e3e";
 
     // State & Helper Functions //
     const [mode, setMode] = useState("focus"); // focus, shortBreak or longBreak
@@ -87,9 +52,15 @@ const Timer = () => {
     const defaultTimes = [25, 5, 15]; // Used to reset to default settings
 
     // Stores the times for each of the modes
-    const [focusTime, setFocusTime] = useState(25);
-    const [shortBreakTime, setShortBreakTime] = useState(5);
-    const [longBreakTime, setLongBreakTime] = useState(10);
+    const [focusTime, setFocusTime] = useState(
+        localStorage.getItem("focusTime") === null ? 25 : parseInt(localStorage.getItem("focusTime"))
+    );
+    const [shortBreakTime, setShortBreakTime] = useState(
+        localStorage.getItem("shortBreakTime") === null ? 5 : parseInt(localStorage.getItem("shortBreakTime"))
+    );
+    const [longBreakTime, setLongBreakTime] = useState(
+        localStorage.getItem("longBreakTime") === null ? 15 : parseInt(localStorage.getItem("longBreakTime"))
+    );
 
     const [running, setRunning] = useState(false); // boolean -> if the timer is running or not
 
@@ -98,6 +69,7 @@ const Timer = () => {
     const [focusTimeSettings, setFocusTimeSettings] = useState(focusTime); // value of the slider in the settings menu
     const [shortTimeSettings, setShortTimeSettings] = useState(shortBreakTime); // value of the slider in the settings menu
     const [longTimeSettings, setLongTimeSettings] = useState(longBreakTime); // value of the slider in the settings menu
+
 
     // Mode Helper Function(s) //
     // returns the time (in minutes) based on what mode the timer is in
@@ -166,10 +138,18 @@ const Timer = () => {
     }
 
     // Sound Functions //
-    const [bell, setBell] = useState(true);
-    const [click, setClick] = useState(true);
-    const [bellVolume, setBellVolume] = useState(0.2);
-    const [clickVolume, setClickVolume] = useState(0.3);
+    const [bell, setBell] = useState(
+        localStorage.getItem("bell") === null ? true : localStorage.getItem("bell") === true
+    );
+    const [click, setClick] = useState(
+        localStorage.getItem("click") === null ? true : localStorage.getItem("click") === true
+    );
+    const [bellVolume, setBellVolume] = useState(
+        localStorage.getItem("bellVolume") === null ? 0.2 : parseInt(localStorage.getItem("bellVolume"))
+    );
+    const [clickVolume, setClickVolume] = useState(
+        localStorage.getItem("clickVolume") === null ? 0.3 : parseInt(localStorage.getItem("clickVolume"))
+    );
 
 
     // Plays the bell sound
@@ -194,7 +174,8 @@ const Timer = () => {
     // Web Worker Functions //
     timerWorker.onmessage = (e) => {
         let newTime = parseInt(e.data.split(":")[1]);
-        // console.log(newTime);
+
+        // If the timer has ended
         if (newTime < 0) {
             // Avoids negative values if rounding
             setTimeLeft(0); // make sure value is round 0 for minutes and seconds
@@ -213,6 +194,7 @@ const Timer = () => {
 
             resetTimer(next);
 
+            // If the timer still has time left
         } else {
             setProgress(newTime / minutesToMs(modeTime(mode)));
             let m = getMinutes(newTime);
@@ -267,66 +249,50 @@ const Timer = () => {
     // Changes the mode to the mode -> "m"
     const changeMode = (m) => {
         resetTimer(m);
-        if (m === "focus") {
-            setMode("focus");
-            setTimeLeft(minutesToMs(focusTime));
-            setMinutes(focusTime);
-            setSeconds(0);
-            document.title = "Pomodoro"
-        }
-        if (m === "shortBreak") {
-            setMode("shortBreak");
-            setTimeLeft(minutesToMs(shortBreakTime));
-            setMinutes(shortBreakTime);
-            setSeconds(0);
-            document.title = "Pomodoro"
-        }
-        if (m === "longBreak") {
-            setMode("longBreak");
-            setTimeLeft(minutesToMs(longBreakTime));
-            setMinutes(longBreakTime);
-            setSeconds(0);
-            document.title = "Pomodoro"
-        }
+        setMode(m);
+        setTimeLeft(minutesToMs(modeTime(m)));
+        setMinutes(modeTime(m));
+        setSeconds(0);
+        document.title = "Pomodoro";
     }
-
 
     // Settings Menu Functions //
 
     // Updates all settings values, based on if they have been changed or not
     const handleSettingsSubmit = (e) => {
         e.preventDefault();
-        if (focusTimeSettings !== focusTime) {
-            setFocusTime(focusTimeSettings);
-        } else if (shortTimeSettings !== shortBreakTime) {
-            setShortBreakTime(shortTimeSettings);
-        } else if (longTimeSettings !== longBreakTime) {
-            setLongBreakTime(longTimeSettings);
-        }
-
-        // Ensures correct and updated time for current mode when settings are updated
+        setFocusTime(focusTimeSettings);
         if (mode === "focus") {
             setMinutes(focusTimeSettings);
-            setSeconds(0);
             setTimeLeft(minutesToMs(focusTimeSettings));
         }
+        setShortBreakTime(shortTimeSettings);
         if (mode === "shortBreak") {
             setMinutes(shortTimeSettings);
-            setSeconds(0);
             setTimeLeft(minutesToMs(shortTimeSettings));
         }
+        setLongBreakTime(longTimeSettings);
         if (mode === "longBreak") {
             setMinutes(longTimeSettings);
-            setSeconds(0);
             setTimeLeft(minutesToMs(longTimeSettings));
         }
 
+        // Set values in local Storage
+        localStorage.setItem("focusTime", focusTimeSettings.toString());
+        localStorage.setItem("shortBreakTime", shortTimeSettings.toString());
+        localStorage.setItem("longBreakTime", longTimeSettings.toString());
+
+        setSeconds(0);
         setShowSettings(false);
     }
 
 
     // Resets all settings to the default values
     const handleReset = () => {
+
+        // Clear Local Storage
+        localStorage.clear();
+
         // Set main state
         setFocusTime(defaultTimes[0]);
         setShortBreakTime(defaultTimes[1]);
@@ -393,7 +359,7 @@ const Timer = () => {
                     }}>
                         <CircularProgressbar styles={{
                             text: {fill: "white", fontSize: "20px", fontFamily: "monospace"},
-                            path: {stroke: (progress < 0.15 ? red : main), strokeLinecap: "butt"}
+                            path: {stroke: (progress < 0.15 ? red : grey), strokeLinecap: "butt"}
                         }} value={progress} maxValue={1} text={min + ":" + sec}/>
                     </div>
 
@@ -419,14 +385,17 @@ const Timer = () => {
                     </Stack>
                     <Stack justifyContent={"center"} paddingTop={"20px"} spacing={1} direction={"row"}>
                         <Button disabled={running} variant={"outlined"}
-                                onClick={() => {setShowSettings(true); playClick()}} startIcon={<Settings/>}>Settings</Button>
+                                onClick={() => {
+                                    setShowSettings(true);
+                                    playClick()
+                                }} startIcon={<Settings/>}>Settings</Button>
                     </Stack>
                 </div>
 
 
                 {/* Credits */}
-                <br />
-                <Box sx={{width:"100%", alignContent:"center"}} >
+                <br/>
+                <Box sx={{width: "100%", alignContent: "center"}}>
                     <Credits/>
                 </Box>
 
@@ -520,12 +489,18 @@ const Timer = () => {
                                 <FormControlLabel
                                     label={"Bell"}
                                     control={<Checkbox inputProps={{'aria-label': 'controlled'}} checked={bell}
-                                                       onChange={(e) => setBell(e.target.checked)}/>}
+                                                       onChange={(e) => {
+                                                           setBell(e.target.checked);
+                                                           localStorage.setItem("bell", e.target.checked.toString())
+                                                       }}/>}
                                 />
                                 <FormControlLabel
                                     label={"Click"}
                                     control={<Checkbox inputProps={{'aria-label': 'controlled'}} checked={click}
-                                                       onChange={(e) => setClick(e.target.checked)}/>}
+                                                       onChange={(e) => {
+                                                           setClick(e.target.checked);
+                                                           localStorage.setItem("click", e.target.checked.toString())
+                                                       }}/>}
                                 />
 
                                 <Typography paddingTop={"15px"} gutterBottom>
@@ -541,7 +516,7 @@ const Timer = () => {
                                                 aria-label={"Default"}
                                                 onChange={(e) => {
                                                     setBellVolume(e.target.value);
-                                                    playBell();
+                                                    localStorage.setItem("bellVolume", e.target.value.toString())
                                                 }}/>
                                     </Grid>
                                 </Grid>
@@ -559,19 +534,32 @@ const Timer = () => {
                                                 aria-label={"Default"}
                                                 onChange={(e) => {
                                                     setClickVolume(e.target.value);
-                                                    playClick();
+                                                    localStorage.setItem("clickVolume", e.target.value.toString());
                                                 }}/>
                                     </Grid>
                                 </Grid>
 
                             </Box>
+                            <Stack spacing={3} direction={"row"} justifyContent={"center"}>
+                                <Button variant={"outlined"} onClick={playBell} startIcon={<VolumeUp/>}>Test
+                                    Bell</Button>
+                                <Button variant={"outlined"} onClick={playClick} startIcon={<VolumeUp/>}>Test
+                                    Click</Button>
+                            </Stack>
                             <br/>
                             <Stack spacing={2} direction={"row"}>
-                                <Button color={"success"} variant={"contained"} type={"submit"} onClick={playClick}>Save Settings</Button>
-                                <Button color={"warning"} variant={"contained"} onClick={() => {handleReset(); playClick()}}>Reset
+                                <Button color={"success"} variant={"contained"} type={"submit"} onClick={playClick}>Save
+                                    Settings</Button>
+                                <Button color={"warning"} variant={"contained"} onClick={() => {
+                                    handleReset();
+                                    playClick()
+                                }}>Reset
                                     Settings</Button>
                                 <Button color={"error"} variant={"contained"}
-                                        onClick={() => {setShowSettings(false); playClick()}}>Exit</Button>
+                                        onClick={() => {
+                                            setShowSettings(false);
+                                            playClick()
+                                        }}>Exit</Button>
                             </Stack>
                         </form>
                     </Box>
