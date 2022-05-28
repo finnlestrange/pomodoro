@@ -26,6 +26,13 @@ import {
     Timelapse, VolumeUp
 } from "@mui/icons-material";
 
+
+// For changing favicons
+import coffeeIcon from "../icons/coffee.ico";
+import booksIcon from "../icons/books.ico";
+import tomatoIcon from "../icons/tomato.ico";
+
+
 import {CircularProgressbar} from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 import '../styles/Timer.css';
@@ -36,7 +43,6 @@ import clickSound from "../audio/button-press.mp3";
 
 // Worker Imports
 import workerScript from "../worker/timer.worker";
-import Credits from "./Credits";
 
 const timerWorker = new Worker(workerScript);
 
@@ -211,6 +217,11 @@ const Timer = () => {
 
     // Timer Control Functions //
     const startTimer = () => {
+        if (mode === "focus") {
+            document.getElementById("favicon").href = booksIcon;
+        } else {
+            document.getElementById("favicon").href = coffeeIcon;
+        }
         setRunning(true);
 
         if (timeLeft <= 0) {
@@ -231,6 +242,8 @@ const Timer = () => {
 
     // Pauses the setInterval function in the web worker
     const stopTimer = () => {
+        document.title="Paused";
+        document.getElementById("favicon").href = tomatoIcon;
         setRunning(false);
         timerWorker.postMessage("stop");
     }
@@ -243,6 +256,7 @@ const Timer = () => {
         setTimeLeft(minutesToMs(modeTime(m)));
         setMinutes(modeTime(m));
         setSeconds(0);
+        document.title="Timer Reset";
     }
 
 
@@ -391,13 +405,6 @@ const Timer = () => {
                                 }} startIcon={<Settings/>}>Settings</Button>
                     </Stack>
                 </div>
-
-
-                {/* Credits */}
-                <br/>
-                <Box sx={{width: "100%", alignContent: "center"}}>
-                    <Credits/>
-                </Box>
 
 
                 {/* Code for the pop-up settings menu */}

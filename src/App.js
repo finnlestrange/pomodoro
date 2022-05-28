@@ -2,6 +2,7 @@ import './styles/App.css';
 
 // Component Imports
 import Timer from "./components/Timer";
+import Credits from "./components/Credits";
 
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
         <div className="App">
             <header className="App-header">
                 <Timer/>
+                <Credits />
             </header>
         </div>
     );
