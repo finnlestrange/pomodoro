@@ -15,8 +15,12 @@
 <a href="https://googlechrome.github.io/lighthouse/viewer/?gist=decfee6af41072605ee413ae8b7092d5" target="_blank">Google Lighthouse Viewer - pomodoro.finnlestrange.tech</a>
 </p>
 
+## 📷 Screenshots
 
-
+<p float="left" align="center">
+  <img src="https://user-images.githubusercontent.com/44287141/171282489-d987c799-31e1-410c-b0c9-18a3c305eec0.png" width="40%" />
+  <img src="https://user-images.githubusercontent.com/44287141/171283083-507e27d0-9737-4159-ae13-2a3c65890e40.png" width="35.5%" /> 
+</p>
 
 ## 🗺 Road Map
 
@@ -44,6 +48,7 @@
 - Sounds for button presses and a bell chime with customizable volume levels for when the timer ends
 - Consistent modern UI - `React MUI`
 - Consistent color scheme - `Inspo from Notion's new dark theme`
+
 
 ## 💡 Credits
 
