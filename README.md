@@ -8,6 +8,16 @@
 
 > This React app was created initially as a side project to help me learn more about `react.js` and web technologies like `workers` and `localstorage`. It has now turned into my main project and will continually be developed to support more features and interactions.
 
+## 🔦 Lighthouse Score - `31-05-22`
+<p align="center"> 
+<a href="https://googlechrome.github.io/lighthouse/viewer/?gist=decfee6af41072605ee413ae8b7092d5" target="_blank"><img src="https://user-images.githubusercontent.com/44287141/171279987-ca004592-fcac-4ad5-8a22-53a0f87b65d2.png" alt="" /></a>
+  <br />
+<a href="https://googlechrome.github.io/lighthouse/viewer/?gist=decfee6af41072605ee413ae8b7092d5" target="_blank">Google Lighthouse Viewer - pomodoro.finnlestrange.tech</a>
+</p>
+
+
+
+
 ## 🗺 Road Map
 
 ### ❌ Version `2.0`
